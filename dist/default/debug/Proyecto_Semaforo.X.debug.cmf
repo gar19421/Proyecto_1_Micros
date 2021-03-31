@@ -12,11 +12,11 @@
 # in delta units.  Any other numeric values are decimal.
 %PSECTS
 $build/default/debug/semaforo_main.o
-tablas CODE 0 0 0 158 2
 resetVector CODE 0 0 0 1 2
-udata_bank0 BANK0 1 20 20 D 1
+code CODE 0 0 0 1CE 2
+udata_bank0 BANK0 1 20 20 C 1
 udata_shr COMMON 1 70 70 2 1
-interruptVector CODE 0 0 0 22 2
+interruptVector CODE 0 0 0 5B 2
 config CONFIG 4 2007 2007 2 2
 # %UNUSED Section
 # This section enumerates the unused ranges of each CLASS. Each entry
@@ -24,22 +24,22 @@ config CONFIG 4 2007 2007 2 2
 #    <class name> <range> <delta>
 # Addresses given in the range are in hexadecimal and units of delta.
 %UNUSED
-RAM 2D-6F 1
+RAM 2C-6F 1
 RAM A0-EF 1
 RAM 110-16F 1
 RAM 190-1EF 1
-BANK0 2D-6F 1
+BANK0 2C-6F 1
 BANK1 A0-EF 1
 BANK2 110-16F 1
 BANK3 190-1EF 1
-CONST 158-1FFF 2
-ENTRY 158-1FFF 2
+CONST 1CE-1FFF 2
+ENTRY 1CE-1FFF 2
 IDLOC 2000-2003 2
-CODE 158-1FFF 2
+CODE 1CE-1FFF 2
 COMMON 72-7F 1
 EEDATA 2100-21FF 2
-STRCODE 158-1FFF 2
-STRING 158-1FFF 2
+STRCODE 1CE-1FFF 2
+STRING 1CE-1FFF 2
 # %LINETAB Section
 # This section enumerates the file/line to address mappings.
 # The beginning of the section is indicated by %LINETAB.
@@ -54,113 +54,304 @@ STRING 158-1FFF 2
 # All other numeric values are in decimal.
 %LINETAB
 $build/default/debug/semaforo_main.o
-0 tablas CODE >136:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-100 tablas CODE >139:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-100 tablas CODE >140:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-101 tablas CODE >141:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-102 tablas CODE >142:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-103 tablas CODE >143:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-104 tablas CODE >144:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-105 tablas CODE >145:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-106 tablas CODE >146:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-107 tablas CODE >147:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-108 tablas CODE >148:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-109 tablas CODE >149:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10A tablas CODE >150:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10B tablas CODE >151:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10C tablas CODE >152:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10D tablas CODE >153:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10E tablas CODE >154:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10F tablas CODE >155:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-110 tablas CODE >156:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-111 tablas CODE >157:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-112 tablas CODE >158:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-113 tablas CODE >159:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-114 tablas CODE >164:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-114 tablas CODE >166:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-115 tablas CODE >167:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-116 tablas CODE >168:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-117 tablas CODE >169:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-118 tablas CODE >170:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-119 tablas CODE >173:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-119 tablas CODE >176:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-11A tablas CODE >180:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-11A tablas CODE >181:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-11C tablas CODE >182:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-11D tablas CODE >183:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-11E tablas CODE >185:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-120 tablas CODE >186:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-121 tablas CODE >187:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-122 tablas CODE >188:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-123 tablas CODE >191:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-125 tablas CODE >192:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-126 tablas CODE >193:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-127 tablas CODE >194:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-128 tablas CODE >198:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-129 tablas CODE >201:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-129 tablas CODE >202:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-12B tablas CODE >203:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-12C tablas CODE >204:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-12D tablas CODE >205:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-12E tablas CODE >206:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-12F tablas CODE >208:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-130 tablas CODE >212:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-130 tablas CODE >213:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-132 tablas CODE >214:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-133 tablas CODE >215:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-134 tablas CODE >216:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-135 tablas CODE >217:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-136 tablas CODE >218:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-137 tablas CODE >219:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-139 tablas CODE >221:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-13C tablas CODE >223:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-13D tablas CODE >227:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-13D tablas CODE >228:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-13F tablas CODE >229:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-140 tablas CODE >230:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-141 tablas CODE >231:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-142 tablas CODE >232:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-143 tablas CODE >234:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-14A tablas CODE >236:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-14B tablas CODE >239:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-14B tablas CODE >240:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-14D tablas CODE >241:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-14E tablas CODE >242:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-14F tablas CODE >243:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-150 tablas CODE >244:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-151 tablas CODE >245:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-153 tablas CODE >246:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-154 tablas CODE >248:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-156 tablas CODE >249:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-157 tablas CODE >252:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-0 interruptVector CODE >88:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-4 interruptVector CODE >89:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-4 interruptVector CODE >90:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-5 interruptVector CODE >91:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-6 interruptVector CODE >92:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-7 interruptVector CODE >94:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-7 interruptVector CODE >95:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-8 interruptVector CODE >96:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-9 interruptVector CODE >97:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-A interruptVector CODE >98:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-B interruptVector CODE >100:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-B interruptVector CODE >101:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-C interruptVector CODE >102:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-D interruptVector CODE >103:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-E interruptVector CODE >104:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-F interruptVector CODE >106:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10 interruptVector CODE >110:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-10 interruptVector CODE >112:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-13 interruptVector CODE >114:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-15 interruptVector CODE >115:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-16 interruptVector CODE >118:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-17 interruptVector CODE >120:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-17 interruptVector CODE >121:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-1E interruptVector CODE >123:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-20 interruptVector CODE >124:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-21 interruptVector CODE >127:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-0 resetVector CODE >82:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
-0 resetVector CODE >83:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+0 interruptVector CODE >98:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+4 interruptVector CODE >100:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+4 interruptVector CODE >101:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+5 interruptVector CODE >102:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+6 interruptVector CODE >103:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+7 interruptVector CODE >105:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+7 interruptVector CODE >106:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+8 interruptVector CODE >107:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+9 interruptVector CODE >108:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+A interruptVector CODE >109:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+B interruptVector CODE >110:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+C interruptVector CODE >111:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+D interruptVector CODE >113:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+D interruptVector CODE >114:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+E interruptVector CODE >115:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+F interruptVector CODE >116:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10 interruptVector CODE >117:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11 interruptVector CODE >119:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12 interruptVector CODE >122:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12 interruptVector CODE >123:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14 interruptVector CODE >124:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15 interruptVector CODE >126:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16 interruptVector CODE >128:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+17 interruptVector CODE >131:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+18 interruptVector CODE >133:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19 interruptVector CODE >135:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19 interruptVector CODE >136:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C interruptVector CODE >137:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1D interruptVector CODE >138:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1E interruptVector CODE >139:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1F interruptVector CODE >141:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1F interruptVector CODE >142:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+20 interruptVector CODE >143:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+21 interruptVector CODE >144:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+22 interruptVector CODE >145:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+23 interruptVector CODE >146:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+24 interruptVector CODE >148:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+24 interruptVector CODE >149:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+25 interruptVector CODE >150:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+26 interruptVector CODE >151:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+27 interruptVector CODE >152:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+28 interruptVector CODE >154:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+28 interruptVector CODE >155:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+29 interruptVector CODE >156:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2A interruptVector CODE >157:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2B interruptVector CODE >160:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2B interruptVector CODE >161:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2C interruptVector CODE >162:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2D interruptVector CODE >163:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2E interruptVector CODE >164:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+2F interruptVector CODE >165:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+30 interruptVector CODE >166:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+31 interruptVector CODE >167:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+32 interruptVector CODE >168:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+33 interruptVector CODE >169:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+34 interruptVector CODE >170:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+35 interruptVector CODE >171:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+36 interruptVector CODE >172:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+37 interruptVector CODE >174:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+38 interruptVector CODE >176:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+38 interruptVector CODE >177:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+39 interruptVector CODE >178:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+3A interruptVector CODE >179:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+3B interruptVector CODE >180:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+3C interruptVector CODE >181:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+3D interruptVector CODE >182:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+3E interruptVector CODE >183:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+3F interruptVector CODE >184:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+40 interruptVector CODE >185:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+41 interruptVector CODE >186:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+42 interruptVector CODE >187:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+43 interruptVector CODE >188:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+44 interruptVector CODE >190:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+45 interruptVector CODE >193:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+45 interruptVector CODE >194:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+4C interruptVector CODE >196:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+4E interruptVector CODE >198:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+4F interruptVector CODE >199:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+50 interruptVector CODE >200:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+51 interruptVector CODE >201:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+52 interruptVector CODE >202:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+53 interruptVector CODE >203:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+54 interruptVector CODE >204:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+55 interruptVector CODE >205:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+56 interruptVector CODE >206:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+57 interruptVector CODE >207:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+58 interruptVector CODE >208:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+59 interruptVector CODE >209:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+5A interruptVector CODE >212:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+0 resetVector CODE >92:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+0 resetVector CODE >93:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+0 code CODE >218:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+100 code CODE >221:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+100 code CODE >222:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+101 code CODE >223:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+102 code CODE >224:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+103 code CODE >225:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+104 code CODE >226:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+105 code CODE >227:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+106 code CODE >228:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+107 code CODE >229:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+108 code CODE >230:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+109 code CODE >231:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10A code CODE >232:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10B code CODE >233:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10C code CODE >234:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10D code CODE >235:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10E code CODE >236:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+10F code CODE >237:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+110 code CODE >238:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+111 code CODE >239:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+112 code CODE >240:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+113 code CODE >241:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+114 code CODE >246:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+114 code CODE >248:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+115 code CODE >249:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+116 code CODE >250:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+117 code CODE >251:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+118 code CODE >252:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+119 code CODE >253:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11A code CODE >254:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11B code CODE >258:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11B code CODE >261:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11C code CODE >262:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11D code CODE >263:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11E code CODE >264:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+11F code CODE >266:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+120 code CODE >267:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+121 code CODE >268:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+122 code CODE >269:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+123 code CODE >271:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+124 code CODE >272:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+125 code CODE >273:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+126 code CODE >274:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+127 code CODE >277:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+128 code CODE >279:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+129 code CODE >283:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+129 code CODE >284:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12A code CODE >285:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12B code CODE >286:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12C code CODE >288:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12C code CODE >289:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12D code CODE >290:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12E code CODE >291:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12F code CODE >293:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+12F code CODE >294:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+130 code CODE >295:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+131 code CODE >296:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+132 code CODE >299:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+132 code CODE >302:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+133 code CODE >303:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+134 code CODE >306:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+135 code CODE >307:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+136 code CODE >308:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+137 code CODE >309:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+138 code CODE >310:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+139 code CODE >311:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13A code CODE >312:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13B code CODE >316:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13C code CODE >317:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13D code CODE >320:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13E code CODE >322:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13F code CODE >324:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+13F code CODE >325:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+140 code CODE >326:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+141 code CODE >328:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+142 code CODE >329:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+143 code CODE >330:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+144 code CODE >332:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+145 code CODE >333:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+146 code CODE >334:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+147 code CODE >336:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+148 code CODE >338:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+148 code CODE >339:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+149 code CODE >340:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14A code CODE >341:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14B code CODE >342:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14C code CODE >344:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14D code CODE >345:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14E code CODE >347:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14F code CODE >351:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+14F code CODE >353:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+150 code CODE >355:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+151 code CODE >356:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+152 code CODE >357:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+153 code CODE >358:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+154 code CODE >359:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+155 code CODE >360:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+156 code CODE >361:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+157 code CODE >362:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+158 code CODE >363:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+159 code CODE >364:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15A code CODE >365:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15B code CODE >366:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15C code CODE >367:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15D code CODE >369:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15D code CODE >371:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15E code CODE >373:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+15F code CODE >374:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+160 code CODE >375:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+161 code CODE >376:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+162 code CODE >377:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+163 code CODE >378:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+164 code CODE >379:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+165 code CODE >380:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+166 code CODE >381:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+167 code CODE >382:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+168 code CODE >383:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+169 code CODE >384:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16A code CODE >385:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16B code CODE >387:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16B code CODE >389:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16C code CODE >391:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16D code CODE >392:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16E code CODE >393:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+16F code CODE >394:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+170 code CODE >395:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+171 code CODE >396:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+172 code CODE >397:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+173 code CODE >398:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+174 code CODE >399:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+175 code CODE >400:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+176 code CODE >401:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+177 code CODE >402:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+178 code CODE >403:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+179 code CODE >405:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+179 code CODE >407:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+179 code CODE >412:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+179 code CODE >413:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+17B code CODE >414:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+17C code CODE >415:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+17D code CODE >417:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+17F code CODE >418:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+180 code CODE >420:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+181 code CODE >421:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+182 code CODE >422:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+183 code CODE >423:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+184 code CODE >425:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+185 code CODE >426:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+186 code CODE >427:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+187 code CODE >429:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+188 code CODE >430:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+189 code CODE >431:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+18A code CODE >432:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+18B code CODE >435:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+18D code CODE >436:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+18E code CODE >437:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+18F code CODE >438:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+190 code CODE >439:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+191 code CODE >440:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+192 code CODE >442:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+193 code CODE >445:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+193 code CODE >446:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+195 code CODE >447:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+196 code CODE >448:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+197 code CODE >449:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+198 code CODE >450:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+199 code CODE >452:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19A code CODE >454:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19A code CODE >455:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19C code CODE >456:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19D code CODE >458:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19E code CODE >459:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+19F code CODE >461:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A0 code CODE >462:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A1 code CODE >464:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A2 code CODE >465:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A4 code CODE >466:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A5 code CODE >468:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A7 code CODE >469:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A8 code CODE >472:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A9 code CODE >475:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1A9 code CODE >476:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1AB code CODE >477:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1AC code CODE >478:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1AD code CODE >479:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1AE code CODE >481:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B0 code CODE >482:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B1 code CODE >483:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B2 code CODE >485:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B3 code CODE >488:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B3 code CODE >489:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B5 code CODE >490:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B6 code CODE >491:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B7 code CODE >492:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B8 code CODE >493:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1B9 code CODE >494:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1BA code CODE >495:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1BC code CODE >497:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1BF code CODE >499:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C0 code CODE >503:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C0 code CODE >504:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C2 code CODE >505:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C3 code CODE >506:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C4 code CODE >507:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C5 code CODE >508:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1C6 code CODE >510:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
+1CD code CODE >512:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\semaforo_main.s
 # %SYMTAB Section
 # An enumeration of all symbols in the program.
 # The beginning of the section is indicated by %SYMTAB.
@@ -173,21 +364,19 @@ F interruptVector CODE >106:C:\Users\brand\MPLABXProjects\Proyecto_Semaforo.X\se
 # was defined in a psect then <psect> will be "-". File-name
 # is the name of the object file in which the symbol was defined.
 %SYMTAB
-__Hspace_0 158 0 ABS 0 - -
+__Hspace_0 1CE 0 ABS 0 - -
 __Hspace_1 72 0 ABS 0 - -
 __Hspace_3 0 0 ABS 0 - -
 __Hspace_4 4010 0 ABS 0 - -
 __LinterruptVector 0 0 ABS 0 interruptVector -
-decenas 27 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
+decenas 24 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
 __Hudata_bank0 0 0 ABS 0 udata_bank0 -
 __Hudata_bank1 0 0 ABS 0 udata_bank1 -
 __Hudata_bank2 0 0 ABS 0 udata_bank2 -
 __Hudata_bank3 0 0 ABS 0 udata_bank3 -
-var 20 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
-nibble 22 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
-banderas 21 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
+banderas 20 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
 __LresetVector 0 0 ABS 0 resetVector -
-centenas 28 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
+bandera_vias 2B 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
 __Hedata 0 0 ABS 0 edata -
 __Hudata 0 0 ABS 0 udata -
 __Hconfig 4012 0 CONFIG 4 config -
@@ -201,16 +390,14 @@ __HresetVector 0 0 ABS 0 resetVector -
 __S0 0 0 ABS 0 - -
 __S1 72 0 ABS 0 - -
 __S3 0 0 ABS 0 - -
-unidades 26 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
-__Htablas 0 0 ABS 0 tablas -
-var_temp 2C 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
+unidades 23 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
+var_temp 27 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
 __Lconfig 0 0 CONFIG 4 config -
 __Lspace_0 0 0 ABS 0 - -
 __Lspace_1 0 0 ABS 0 - -
 __Lspace_3 0 0 ABS 0 - -
 __Lspace_4 0 0 ABS 0 - -
-display_var 24 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
-__Ltablas 0 0 ABS 0 tablas -
+display_var 21 0 BANK0 1 udata_bank0 build/default/debug/semaforo_main.o
 __Ludata_bank0 0 0 ABS 0 udata_bank0 -
 __Ludata_bank1 0 0 ABS 0 udata_bank1 -
 __Ludata_bank2 0 0 ABS 0 udata_bank2 -
@@ -242,7 +429,7 @@ __Ludata_shr 0 0 ABS 0 udata_shr -
 # and size are in units of delta. The file address is in units of bytes.
 # All other numeric quantities are in decimal.
 %SEGMENTS
-udata_bank0 1 20 20 D 1
+udata_bank0 1 20 20 C 1
 udata_shr 1 70 70 2 1
 # %NOTES Section
 # This section contains data of all the note-psects.  The beginning of the section

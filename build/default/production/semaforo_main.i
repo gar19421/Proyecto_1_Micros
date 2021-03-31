@@ -2490,18 +2490,20 @@ DOWN EQU 7;
 
 ;----------------------------------Macros---------------------------------------
 
+
 reiniciar_timer0 macro ; macro para reutilizar reinicio de tmr0
-    movlw 254 ; valor de n para (256-n)
+    movlw 255 ; valor de n para (256-n)
     movwf TMR0 ; delay inicial TMR0
     bcf ((INTCON) and 07Fh), 2
 endm
 
+
 reiniciar_timer1 macro ; reiniciar de Timer1
     Banksel PORTA ; banco 0
-    ;n = 32,286
-    movlw 0x7E ; cargar al registro W el valor inicial del tmr1 high
+    ;n = 34,911
+    movlw 0x88 ; cargar al registro W el valor inicial del tmr1 high
     movwf TMR1H ; cargar timer 1 high
-    movlw 0x1E ;cargar al registro W el valor inicial del tmr1 low
+    movlw 0x5F ;cargar al registro W el valor inicial del tmr1 low
     movwf TMR1L ; cargar timer 1 low
     bcf ((PIR1) and 07Fh), 0 ; limpiar bandera de interrupción timer1
 endm
@@ -2509,19 +2511,23 @@ endm
 
 ;---------------------------------Variables-------------------------------------
 
-Global var, banderas, nibble, display_var, unidades, decenas, centenas, var_temp
+Global banderas, display_var, unidades, decenas, var_temp, bandera_vias
 PSECT udata_bank0 ;variables almacenadas en el banco 0
-    var: DS 1 ;1 byte -> para bucle
+    ;var: DS 1 ;1 byte -> para bucle
+    ;nibble: DS 2; variables para contador hexademimal
+    ;centenas: DS 1
+    ;centenas_disp: DS 1
     banderas: DS 1 ;1 byte -> para contador de display timer0
-    nibble: DS 2; variables para contador hexademimal
     display_var: DS 2
     unidades: DS 1; variables de contador BCD
     decenas: DS 1
-    centenas: DS 1
     unidades_disp: DS 1 ; variables a mostrar en displays BCD
     decenas_disp: DS 1
-    centenas_disp: DS 1
     var_temp: DS 1 ;variable temporal para valor de portb
+    tiempo_via1: DS 1
+    tiempo_via2: DS 1
+    tiempo_via3: DS 1
+    bandera_vias: DS 1
 
 PSECT udata_shr ;variables en memoria compartida
     W_TEMP: DS 1 ;1 byte
@@ -2575,27 +2581,84 @@ int_iocb:
 
     return
 
-
 int_timer0:
-
     reiniciar_timer0
+    clrf PORTD
+    btfsc banderas,0
+    goto display_unidades; multiplexado de displays con timer0
 
-    banksel PORTA
-    incf PORTD
+display_decenas:; mostrar display decenas
+    movf decenas_disp, W
+    movwf PORTC
+    call preparar_display1_via
+    bsf PORTD,0;habilitar pin 3 D para encender display 3
+    goto next_display
 
+display_unidades:;mostrar display unidades
+    movf unidades_disp, W
+    movwf PORTC
+    call preparar_display2_via
+    goto next_display
+
+next_display:; subrutina para ir iterando entre cada uno de los display
+    movlw 1
+    xorwf banderas,F
+    return
+
+
+preparar_display1_via:
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 0
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 2
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 4
 
     return
+
+preparar_display2_via:
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 1
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 3
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 5
+
+    return
+
 
 int_timer1:
     reiniciar_timer1
 
     banksel PORTA
-    incf PORTA ; incrementar contador en el PORTA con timer1
+
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call decrementar_via1
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call decrementar_via2
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call decrementar_via3
 
 
     return
-
-
 
 
 ;-----------------------------Código principal----------------------------------
@@ -2627,24 +2690,173 @@ tabla: ; tabla de valor de pines encendido para mostrar x valor en el display
     retlw 01110001B ;F
 
 
-;----------- Configuración -----------------------
+;-------------------------------Configuración-----------------------------------
 
 setup:
 
-    call config_io ;
+    call configuracion_inicial_vias
     call config_reloj ;
-    call config_timer0 ;
-    call config_timer1 ;
+    call config_io ;
     call config_int_enable ;
+    call config_timer1 ;
+    call config_timer0 ;
     call config_iocrb ;
 
 
+;-------------------------------Loop forever------------------------------------
 loop:
 
+   ;mover valor de puerto A a la variable temporal de displays BCD
+   movlw 0x01
+   xorwf bandera_vias, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call mover_tiempo_via1
 
-    goto loop
+   movlw 0x02
+   xorwf bandera_vias, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call mover_tiempo_via2
+
+   movlw 0x03
+   xorwf bandera_vias, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call mover_tiempo_via3
 
 
+   call binario_decimal
+
+   goto loop
+
+;--------------------------------Subrutinas-------------------------------------
+
+mover_tiempo_via1:
+    movf tiempo_via1,W
+    movwf var_temp
+    return
+
+mover_tiempo_via2:
+    movf tiempo_via2,W
+    movwf var_temp
+    return
+
+mover_tiempo_via3:
+    movf tiempo_via3,W
+    movwf var_temp
+    return
+
+
+binario_decimal:
+    ;limpiar variables BCD
+
+    clrf decenas
+    clrf unidades
+
+    ;ver decenas
+    movlw 10
+    subwf var_temp,F; se resta el al valor de porta 10D
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    incf decenas, F; si porta>10 incrementa decenas
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    goto $-4; si porta>10 repite proceso
+    addwf var_temp,F;ya no es posible restar mas
+       ;suma nuevamente el valor de var_temp sumandole nuevamente 10D
+
+    ;ver unidades
+    movf var_temp, W
+    movwf unidades ; mueve a unidades el restante del procedimiento anterior
+     ; var_temp en este punto es menor o igual a nueve y >0
+
+    call preparar_displays
+
+    return
+
+preparar_displays:
+    clrf decenas_disp
+    clrf unidades_disp ; variables para prender displays
+
+    movf decenas, W ; obtener el valor para display de decenas
+    call tabla
+    movwf decenas_disp
+
+    movf unidades, W ; obtener el valor para display de unidades
+    call tabla
+    movwf unidades_disp
+
+    return
+
+configuracion_inicial_vias:
+    movlw 20
+    movwf tiempo_via1
+    movwf tiempo_via2
+    movwf tiempo_via3
+
+    movlw 1
+    movwf bandera_vias
+
+    return
+
+
+
+decrementar_via1:
+
+    decf tiempo_via1,F
+
+    movlw 6
+    xorwf tiempo_via1, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call verde_titilante
+    movlw 3
+    xorwf tiempo_via1, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call amarillo
+    movf tiempo_via1
+    btfsc STATUS,2 ;Verificar bandera de zero
+    movf 2
+    btfsc STATUS,2 ;Verificar bandera de zero
+    movwf bandera_vias; y hacer rojo el led
+
+decrementar_via2:
+
+    decf tiempo_via2,F
+
+    movlw 6
+    xorwf tiempo_via2, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call verde_titilante
+    movlw 3
+    xorwf tiempo_via2, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call amarillo ; sería macro?
+    movf tiempo_via2
+    btfsc STATUS,2 ;Verificar bandera de zero
+    movf 3
+    btfsc STATUS,2 ;Verificar bandera de zero
+    movwf bandera_vias; y hacer rojo el led
+
+decrementar_via3:
+
+    decf tiempo_via3,F
+
+    movlw 6
+    xorwf tiempo_via3, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call verde_titilante
+    movlw 3
+    xorwf tiempo_via3, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call amarillo
+    movf tiempo_via3
+    btfsc STATUS,2 ;Verificar bandera de zero
+    movf 1
+    btfsc STATUS,2 ;Verificar bandera de zero
+    movwf bandera_vias; y hacer rojo el led
+
+verde_titilante:
+    return
+amarillo:
+    return
+
+;-------------------------Subrutinas de configuración---------------------------
 
 config_io:
     banksel ANSEL ;banco 11
@@ -2654,10 +2866,10 @@ config_io:
     banksel TRISA ;banco 01
     clrf TRISA
 
-    bcf PORTB, 0
-    bsf PORTB, MODE
-    bsf PORTB, UP
-    bsf PORTB, DOWN
+    bcf TRISB, 0
+    bsf TRISB, MODE
+    bsf TRISB, UP
+    bsf TRISB, DOWN
 
     clrf TRISC
     clrf TRISD
@@ -2670,20 +2882,20 @@ config_io:
 
 
     banksel PORTA ; banco 00
+    clrf PORTB
     clrf PORTA
     clrf PORTC
     clrf PORTD ; limpiar salidas
-
-
+    clrf PORTE
 
     return
 
 
 config_reloj:
     banksel OSCCON
-    bcf ((OSCCON) and 07Fh), 6 ; IRCF = 100 (1MHz)
+    bsf ((OSCCON) and 07Fh), 6 ; IRCF = 100 (1MHz)
     bcf ((OSCCON) and 07Fh), 5
-    bsf ((OSCCON) and 07Fh), 4
+    bcf ((OSCCON) and 07Fh), 4
     bsf ((OSCCON) and 07Fh), 0 ; reloj interno
 
     return
@@ -2721,14 +2933,14 @@ config_iocrb:
 
     return
 
-;t = 4 * (T_osc) * (256-n) (Preescaler) = 1ms
+;t = 4 * (T_osc) * (256-n) (Preescaler) = 2.05ms
 config_timer0:
     banksel TRISA
     bcf ((OPTION_REG) and 07Fh), 5 ; reloj interno
     bcf ((OPTION_REG) and 07Fh), 3 ; prescaler
-    bcf ((OPTION_REG) and 07Fh), 2
+    bsf ((OPTION_REG) and 07Fh), 2
     bsf ((OPTION_REG) and 07Fh), 1
-    bsf ((OPTION_REG) and 07Fh), 0 ; PS = 110 (1:128)
+    bsf ((OPTION_REG) and 07Fh), 0 ; PS = 110 (1:256)
     banksel PORTA
 
     reiniciar_timer0
@@ -2736,7 +2948,7 @@ config_timer0:
     return
 
 
-;t=4 * (T_osc) * (63536-n) (Preescaler) = 1s
+;t = 4 * (T_osc) * (65536-n) (Preescaler) = 0.98s
 config_timer1:
     Banksel PORTA
     bsf ((T1CON) and 07Fh), 0
@@ -2747,5 +2959,6 @@ config_timer1:
     reiniciar_timer1
 
     return
-# 316 "semaforo_main.s"
+
+
 end
