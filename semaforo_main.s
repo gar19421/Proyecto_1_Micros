@@ -78,7 +78,11 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     tiempo_via1: DS 1
     tiempo_via2: DS 1
     tiempo_via3: DS 1
+    tiempo_via1_usr: DS 1
+    tiempo_via2_usr: DS 1
+    tiempo_via3_usr: DS 1
     bandera_vias: DS 1
+    bandera_vias_temp: DS 1
     
 PSECT udata_shr ;variables en memoria compartida
     W_TEMP: DS 1 ;1 byte
@@ -142,7 +146,6 @@ display_decenas:; mostrar display decenas
     movf decenas_disp, W
     movwf PORTC
     call preparar_display1_via
-    bsf PORTD,0;habilitar pin 3 D para encender display 3
     goto next_display
     
 display_unidades:;mostrar display unidades
@@ -195,6 +198,9 @@ int_timer1:
     
     banksel PORTA    
     
+    movf bandera_vias, W
+    movwf bandera_vias_temp
+    
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -208,6 +214,8 @@ int_timer1:
     btfsc STATUS,2 ;Verificar bandera de zero
     call decrementar_via3
     
+    movf bandera_vias_temp, W
+    movwf bandera_vias
     
     return
     
@@ -336,10 +344,14 @@ preparar_displays:
     return
     
 configuracion_inicial_vias:
-    movlw 20
+    movlw 10
     movwf tiempo_via1
     movwf tiempo_via2
     movwf tiempo_via3
+    
+    movwf tiempo_via1_usr
+    movwf tiempo_via2_usr
+    movwf tiempo_via3_usr
     
     movlw 1
     movwf bandera_vias
@@ -362,9 +374,8 @@ decrementar_via1:
     call amarillo
     movf tiempo_via1
     btfsc STATUS,2 ;Verificar bandera de zero
-    movlw 0x02
-    btfsc STATUS,2 ;Verificar bandera de zero
-    movwf bandera_vias; y hacer rojo el led
+    call actualizar_bandera_via1
+    return
     
 decrementar_via2:
     
@@ -380,9 +391,8 @@ decrementar_via2:
     call amarillo ; sería macro?
     movf tiempo_via2
     btfsc STATUS,2 ;Verificar bandera de zero
-    movf 0x03
-    btfsc STATUS,2 ;Verificar bandera de zero
-    movwf bandera_vias; y hacer rojo el led
+    call actualizar_bandera_via2
+    return
     
 decrementar_via3:
     
@@ -398,9 +408,36 @@ decrementar_via3:
     call amarillo
     movf tiempo_via3
     btfsc STATUS,2 ;Verificar bandera de zero
-    movf 0x01
-    btfsc STATUS,2 ;Verificar bandera de zero
-    movwf bandera_vias; y hacer rojo el led
+    call actualizar_bandera_via3
+    
+    return
+    
+actualizar_bandera_via1:
+    movlw 0x02
+    movwf bandera_vias_temp; y hacer rojo el led
+    
+    movf tiempo_via1_usr, W
+    movwf tiempo_via1
+    
+    return
+    
+actualizar_bandera_via2:
+    movlw 0x03
+    movwf bandera_vias_temp; y hacer rojo el led
+    
+    movf tiempo_via2_usr, W
+    movwf tiempo_via2
+    
+    return
+    
+actualizar_bandera_via3:
+    movlw 0x01
+    movwf bandera_vias_temp; y hacer rojo el led
+    
+    movf tiempo_via3_usr, W
+    movwf tiempo_via3
+    
+    return
     
 verde_titilante:
     return
