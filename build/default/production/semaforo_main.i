@@ -2490,7 +2490,6 @@ DOWN EQU 7;
 
 ;----------------------------------Macros---------------------------------------
 
-
 reiniciar_timer0 macro ; macro para reutilizar reinicio de tmr0
     movlw 255 ; valor de n para (256-n)
     movwf TMR0 ; delay inicial TMR0
@@ -2702,9 +2701,9 @@ tabla: ; tabla de valor de pines encendido para mostrar x valor en el display
 
 setup:
 
-    call configuracion_inicial_vias
     call config_reloj ;
     call config_io ;
+    call configuracion_inicial_vias
     call config_int_enable ;
     call config_timer1 ;
     call config_timer0 ;
@@ -2713,6 +2712,8 @@ setup:
 
 ;-------------------------------Loop forever------------------------------------
 loop:
+
+   banksel PORTA
 
    ;mover valor de puerto A a la variable temporal de displays BCD
    movlw 0x01
@@ -2738,16 +2739,19 @@ loop:
 ;--------------------------------Subrutinas-------------------------------------
 
 mover_tiempo_via1:
+
     movf tiempo_via1,W
     movwf var_temp
     return
 
 mover_tiempo_via2:
+
     movf tiempo_via2,W
     movwf var_temp
     return
 
 mover_tiempo_via3:
+
     movf tiempo_via3,W
     movwf var_temp
     return
@@ -2793,7 +2797,7 @@ preparar_displays:
     return
 
 configuracion_inicial_vias:
-    movlw 4
+    movlw 10
     movwf tiempo_via1
     movwf tiempo_via2
     movwf tiempo_via3
@@ -2804,6 +2808,10 @@ configuracion_inicial_vias:
 
     movlw 1
     movwf bandera_vias
+
+    bsf PORTA,2; poner semaforo via 1 en verde
+    bsf PORTA,3; poner semaforo via 2 en rojo
+    bsf PORTA,6; poner semaforo via 3 en rojo
 
     return
 
@@ -2820,7 +2828,8 @@ decrementar_via1:
     movlw 0x03
     xorwf tiempo_via1, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call amarillo
+    call via1_amarillo ; poner semaforo via 1 en amarillo
+
     movf tiempo_via1
     btfsc STATUS,2 ;Verificar bandera de zero
     call actualizar_bandera_via1
@@ -2837,7 +2846,8 @@ decrementar_via2:
     movlw 0x03
     xorwf tiempo_via2, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call amarillo ; sería macro?
+    call via2_amarillo ; poner semaforo via 2 en amarillo
+
     movf tiempo_via2
     btfsc STATUS,2 ;Verificar bandera de zero
     call actualizar_bandera_via2
@@ -2854,7 +2864,8 @@ decrementar_via3:
     movlw 0x03
     xorwf tiempo_via3, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call amarillo
+    call via3_amarillo ; poner semaforo via 3 en amarillo
+
     movf tiempo_via3
     btfsc STATUS,2 ;Verificar bandera de zero
     call actualizar_bandera_via3
@@ -2862,11 +2873,18 @@ decrementar_via3:
     return
 
 actualizar_bandera_via1:
+
     movlw 0x02
     movwf bandera_vias_temp; y hacer rojo el led
 
     movf tiempo_via1_usr, W
-    movwf tiempo_via1
+    movwf tiempo_via1 ;reseteo el valor de conteo
+
+    bsf PORTA,0; poner semaforo via 1 en rojo
+    bsf PORTA,5; poner semaforo via 2 en verde
+    bcf PORTA,3; apagar luz roja via 2
+    bsf PORTA,6; poner semaforo via 3 en rojo
+    bcf PORTA,1; apagar luz amarilla via 1
 
     return
 
@@ -2877,6 +2895,12 @@ actualizar_bandera_via2:
     movf tiempo_via2_usr, W
     movwf tiempo_via2
 
+    bsf PORTA,0; poner semaforo via 1 en rojo
+    bsf PORTA,3; poner semaforo via 2 en rojo
+    bsf PORTB,0; poner semaforo via 3 en verde
+    bcf PORTA,6; apagar luz roja via 3
+    bsf PORTA,4; apagar luz amarilla via 2
+
     return
 
 actualizar_bandera_via3:
@@ -2886,11 +2910,30 @@ actualizar_bandera_via3:
     movf tiempo_via3_usr, W
     movwf tiempo_via3
 
+    bsf PORTA,2; poner semaforo via 1 en verde
+    bcf PORTA,0; apagar luz roja via 1
+    bsf PORTA,3; poner semaforo via 2 en rojo
+    bsf PORTA,6; poner semaforo via 3 en rojo
+    bsf PORTA,7; apagar luz amarilla via 3
+
     return
 
 verde_titilante:
     return
-amarillo:
+
+via1_amarillo:
+    bcf PORTA,2
+    bsf PORTA,1
+    return
+
+via2_amarillo:
+    bcf PORTA,5
+    bsf PORTA,4
+    return
+
+via3_amarillo:
+    bcf PORTB,0
+    bsf PORTA,7
     return
 
 ;-------------------------Subrutinas de configuración---------------------------
