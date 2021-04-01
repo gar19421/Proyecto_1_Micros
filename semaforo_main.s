@@ -50,14 +50,22 @@ endm
   
 reiniciar_timer1 macro	; reiniciar de Timer1
     Banksel PORTA   ; banco 0
-    ;n = 34,911
-    movlw   0x88   ; cargar al registro W el valor inicial del tmr1 high
+    ;n = 49,912
+    movlw   0xC2   ; cargar al registro W el valor inicial del tmr1 high
     movwf   TMR1H   ; cargar timer 1 high
-    movlw   0x5F    ;cargar al registro W el valor inicial del tmr1 low
+    movlw   0xF8    ;cargar al registro W el valor inicial del tmr1 low
     movwf   TMR1L    ; cargar timer 1 low
     bcf	    TMR1IF    ; limpiar bandera de interrupción	 timer1
 endm 
   
+
+reiniciar_timer2 macro	; reiniciar de Timer2
+    Banksel PORTA   ; banco 0
+    movlw   0xF4   ; cargar al registro W el valor inicial del tmr2
+    movwf   PR2    ; cargar timer 2
+    bcf	    TMR2IF    ;limpiar bandera de interrupción	timer2	
+endm
+    
   
 ;---------------------------------Variables-------------------------------------
     
@@ -82,6 +90,9 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     tiempo_via3_usr: DS 1
     bandera_vias: DS 1
     bandera_vias_temp: DS 1
+    verde_titilante: DS 1
+    detener_verde_titilante: DS 1
+    led_t: DS 1
     
 PSECT udata_shr ;variables en memoria compartida
     W_TEMP: DS 1 ;1 byte
@@ -112,9 +123,11 @@ ORG 0x0004
 	call    int_timer0	;subrutina de interrupción de timer0
 	btfsc   TMR1IF; verifica si la bandera de interrupcion tmr1 esta levantada
 	call    int_timer1	; subrutina de interrupción de timer1
-    
+	btfsc   TMR2IF ; verifica si la bandera de interrupcion tmr2 esta levantada
+	call    int_timer2	; subrutina de interrupción de timer2
+	
     pop:
-	swapf STATUS_TEMP, W
+	swapf STATUS_TEMP, W ;reobtener los valores de STATUS y W
 	movwf STATUS
 	swapf W_TEMP,F
 	swapf W_TEMP, W
@@ -195,8 +208,14 @@ preparar_display2_via:
 int_timer1:
     reiniciar_timer1
     
-    banksel PORTA    
+    banksel PORTA  
     
+    ;verde titilante
+    btfsc verde_titilante,0
+    decf detener_verde_titilante, F
+    
+    
+    ;verificar banderas y vias
     movf bandera_vias, W
     movwf bandera_vias_temp
     
@@ -217,6 +236,31 @@ int_timer1:
     movwf bandera_vias
     
     return
+    
+
+int_timer2:
+    reiniciar_timer2
+    
+    btfsc verde_titilante,0 ;realizar el el titileo de 0.5s 
+    call titileo_verde	    ; solo si esta encendida la bandera
+    
+    return
+
+    
+    
+titileo_verde: ;verificar de que via es el titileo
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call via1_verde_titilante
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call via2_verde_titilante
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    call via3_verde_titilante
     
     
 ;-----------------------------Código principal----------------------------------
@@ -256,8 +300,9 @@ setup:
     call config_io ;
     call configuracion_inicial_vias
     call config_int_enable ;
+    call config_timer0 ;
     call config_timer1  ; 
-    call config_timer0 ;  
+    call config_timer2 ;
     call config_iocrb ;
     
     
@@ -348,6 +393,7 @@ preparar_displays:
     return
     
 configuracion_inicial_vias:
+    
     movlw 10
     movwf tiempo_via1
     movwf tiempo_via2
@@ -359,6 +405,13 @@ configuracion_inicial_vias:
     
     movlw 1
     movwf bandera_vias
+    movwf led_t
+    
+    movlw 3
+    movwf detener_verde_titilante
+    
+    clrf verde_titilante
+     
     
     bsf PORTA,2; poner semaforo via 1 en verde
     bsf	PORTA,3; poner semaforo via 2 en rojo
@@ -375,11 +428,15 @@ decrementar_via1:
     movlw 0x06
     xorwf tiempo_via1, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call verde_titilante
+    bsf verde_titilante,0
+    
+    ;btfsc verde_titilante,0
+    ;call via1_verde_titilante
+    
     movlw 0x03
     xorwf tiempo_via1, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call via1_amarillo ; poner semaforo via 1 en amarillo
+    bsf PORTA,1 ; poner semaforo via 1 en amarillo
     
     movf tiempo_via1
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -393,11 +450,12 @@ decrementar_via2:
     movlw 0x06
     xorwf tiempo_via2, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call verde_titilante
+    bsf verde_titilante,0
+    
     movlw 0x03
     xorwf tiempo_via2, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call via2_amarillo ; poner semaforo via 2 en amarillo
+    bsf PORTA,4 ; poner semaforo via 2 en amarillo
     
     movf tiempo_via2
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -411,11 +469,12 @@ decrementar_via3:
     movlw 0x06
     xorwf tiempo_via3, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call verde_titilante
+    bsf verde_titilante,0
+    
     movlw 0x03
     xorwf tiempo_via3, W
     btfsc STATUS,2 ;Verificar bandera de zero
-    call via3_amarillo ; poner semaforo via 3 en amarillo
+    bsf PORTA,7 ; poner semaforo via 3 en amarillo
     
     movf tiempo_via3
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -450,7 +509,7 @@ actualizar_bandera_via2:
     bsf	PORTA,3; poner semaforo via 2 en rojo
     bsf PORTB,0; poner semaforo via 3 en verde
     bcf PORTA,6; apagar luz roja via 3
-    bsf PORTA,4; apagar luz amarilla via 2
+    bcf PORTA,4; apagar luz amarilla via 2
     
     return
     
@@ -465,26 +524,79 @@ actualizar_bandera_via3:
     bcf PORTA,0; apagar luz roja via 1
     bsf	PORTA,3; poner semaforo via 2 en rojo
     bsf PORTA,6; poner semaforo via 3 en rojo
-    bsf PORTA,7; apagar luz amarilla via 3
+    bcf PORTA,7; apagar luz amarilla via 3
     
     return
     
-verde_titilante:
-    return
+via1_verde_titilante:
     
-via1_amarillo:
+    btfsc PORTA,2 ; si esta encendido lo apaga
+    bcf led_t,0
+    btfss PORTA,2
+    bsf led_t,0
+    
+    btfss led_t,0 ; si esta encendido lo apaga
     bcf PORTA,2
-    bsf PORTA,1
+    btfsc led_t,0
+    bsf PORTA,2
+    
+    movf detener_verde_titilante, W ; verifica que hayan pasado los 3s
+    btfss STATUS, 2
     return
     
-via2_amarillo:
+    bsf led_t,0	    ; reincia los valores de las banderas y apaga led verde
+    bcf PORTA,2 
+    clrf verde_titilante
+    movlw 3
+    movwf detener_verde_titilante
+    
+    return
+    
+via2_verde_titilante:
+    
+    btfsc PORTA,5 ; si esta encendido lo apaga
+    bcf led_t,0
+    btfss PORTA,5
+    bsf led_t,0
+    
+    btfss led_t,0
     bcf PORTA,5
-    bsf PORTA,4
+    btfsc led_t,0
+    bsf PORTA,5
+    
+    movf detener_verde_titilante, W
+    btfss STATUS, 2
     return
     
-via3_amarillo:
+    bsf led_t,0
+    bcf PORTA,5
+    clrf verde_titilante
+    movlw 3
+    movwf detener_verde_titilante
+    
+    return
+
+via3_verde_titilante:
+    btfsc PORTB,0 ; si esta encendido lo apaga
+    bcf led_t,0
+    btfss PORTB,0
+    bsf led_t,0
+    
+    btfss led_t,0
     bcf PORTB,0
-    bsf PORTA,7
+    btfsc led_t,0
+    bsf PORTB,0
+    
+    movf detener_verde_titilante, W
+    btfss STATUS, 2
+    return
+    
+    bsf led_t,0
+    bcf PORTB,0
+    clrf verde_titilante
+    movlw 3
+    movwf detener_verde_titilante
+    
     return
     
 ;-------------------------Subrutinas de configuración--------------------------- 
@@ -524,9 +636,9 @@ config_io:
     
 config_reloj:
     banksel OSCCON
-    bsf IRCF2 ; IRCF = 100 (1MHz) 
-    bcf IRCF1
-    bcf IRCF0
+    bcf IRCF2 ; IRCF = 011 (500kHz) 
+    bsf IRCF1
+    bsf IRCF0
     bsf SCS ; reloj interno
     
     return
@@ -544,10 +656,10 @@ config_int_enable:; INTCON
     bsf	PEIE
     Banksel TRISA
     bsf	TMR1IE	; Se habilitan la interrupción del TMR1 Registro PIE1
-    ;bsf	TMR2IE	; Se habilitan la interrupción del TMR2 Registro PIE1
+    bsf	TMR2IE	; Se habilitan la interrupción del TMR2 Registro PIE1
     Banksel PORTA
     bcf	TMR1IF  ; Se limpia la bandera Registro PIR1
-    ;bcf	TMR2IF  ; Se limpia la bandera Registro PIR1
+    bcf	TMR2IF  ; Se limpia la bandera Registro PIR1
     
     return
        
@@ -564,7 +676,7 @@ config_iocrb:
     
     return
     
-;t = 4 * (T_osc) * (256-n) (Preescaler) = 1.03ms
+;t = 4 * (T_osc) * (256-n) (Preescaler) = 2.05ms
 config_timer0:
     banksel TRISA
     bcf T0CS ; reloj interno
@@ -579,7 +691,7 @@ config_timer0:
     return
     
     
-;t = 4 * (T_osc) * (65536-n) (Preescaler) = 0.98s
+;t = 4 * (T_osc) * (65536-n) (Preescaler) = 1s
 config_timer1:
     Banksel PORTA  
     bsf	    TMR1ON
@@ -591,5 +703,23 @@ config_timer1:
     
     return
     
-
+    
+;t=4 * (T_osc) * (Preescaler) (PR2) (Postcaler)= 0.5
+config_timer2:
+    banksel PORTA
+    bsf TMR2ON ; reloj interno
+    
+    bsf TOUTPS3
+    bsf TOUTPS2
+    bsf TOUTPS1
+    bsf TOUTPS0;POSTCALEER (1:16)
+    
+    bsf T2CKPS1
+    bsf TOUTPS0;PS (1:16)
+ 
+    reiniciar_timer2
+      
+    return
+    
+    
 end
