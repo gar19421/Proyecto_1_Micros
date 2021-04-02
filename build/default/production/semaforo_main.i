@@ -2537,6 +2537,7 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     tiempo_via1_usr: DS 1
     tiempo_via2_usr: DS 1
     tiempo_via3_usr: DS 1
+    tiempo_vias_temporal: DS 1
     bandera_vias: DS 1
     bandera_vias_temp: DS 1
     verde_titilante: DS 1
@@ -2599,7 +2600,7 @@ int_iocb:
     banksel PORTA
 
     btfss PORTB, MODE ;verificar pin activado como pull-up
-    incf modo_semaforo, F
+    call actualizar_modo
 
     movlw 0x05; reniciar modo cuando llega a modo 5
     xorwf modo_semaforo,W
@@ -2607,14 +2608,45 @@ int_iocb:
     clrf modo_semaforo
 
 
-    ;btfss PORTB, UP ;verificar pin activado como pull-up
-    ;incf PORTA
-    ;btfss PORTB, DOWN ;verificar pin activado como pull-up
-    ;decf PORTA
+    btfss PORTB, UP ;verificar pin activado como pull-up
+    call actualizar_vias_inc
+
+
+    btfss PORTB, DOWN ;verificar pin activado como pull-up
+    call actualizar_vias_dec
 
     bcf ((INTCON) and 07Fh), 0 ; limpiar bandera
 
     return
+
+
+actualizar_modo:
+    incf modo_semaforo, F
+    movlw 10
+    movwf display_conf
+    movwf tiempo_vias_temporal
+
+    return
+
+actualizar_vias_inc:
+
+    movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
+    xorwf modo_semaforo,W
+    btfss STATUS,2
+    incf tiempo_vias_temporal,F
+
+    return
+
+actualizar_vias_dec:
+
+    movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
+    xorwf modo_semaforo,W
+    btfss STATUS,2
+    decf tiempo_vias_temporal,F
+
+
+    return
+
 
 int_timer0:
     reiniciar_timer0
@@ -2895,6 +2927,8 @@ modo_conf_via1:
     bcf PORTE,2
 
     bsf bandera_display_conf,0
+    movf tiempo_vias_temporal,W
+    movwf display_conf
     ;call prender_config_displays
     ;bandera de modo semaforo para incremento
 
@@ -2905,6 +2939,9 @@ modo_conf_via2:
     bsf PORTE,1
     bcf PORTE,2
 
+    movf tiempo_vias_temporal,W
+    movwf display_conf
+
     return
 
 modo_conf_via3:
@@ -2912,19 +2949,22 @@ modo_conf_via3:
     bcf PORTE,1
     bsf PORTE,2
 
+    movf tiempo_vias_temporal,W
+    movwf display_conf
+
     return
 
 modo_verificar_cambios:
-    bcf PORTE,0
-    bcf PORTE,1
-    bcf PORTE,2
+    ;bcf PORTE,0
+    ;bcf PORTE,1
+    ;bcf PORTE,2
 
-    call delay
+    ;call delay*
     bsf PORTE,0
     bsf PORTE,1
     bsf PORTE,2
-    call delay
-
+    ;call delay*
+    ;bandera aceptar o denegar
     return
 
 
@@ -3062,8 +3102,9 @@ configuracion_inicial_vias:
     movlw 3
     movwf detener_verde_titilante
 
-    movlw 12
+    movlw 10
     movwf display_conf
+    movwf tiempo_vias_temporal
 
     movlw 0x00
     movwf banderas
