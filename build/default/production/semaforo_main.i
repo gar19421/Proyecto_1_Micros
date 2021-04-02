@@ -2518,7 +2518,7 @@ endm
 
 ;---------------------------------Variables-------------------------------------
 
-Global banderas, display_var, unidades, decenas, var_temp, bandera_vias, modo_semaforo
+Global decenas_disp_conf,unidades_conf, decenas_conf, banderas, display_var, unidades, decenas, var_temp, bandera_vias, modo_semaforo
 PSECT udata_bank0 ;variables almacenadas en el banco 0
     ;var: DS 1 ;1 byte -> para bucle
     ;nibble: DS 2; variables para contador hexademimal
@@ -2547,8 +2547,10 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     bandera_display_conf: DS 1
     unidades_conf: DS 1; variables de contador BCD
     decenas_conf: DS 1
-    unidades_disp_conf: DS 1 ; variables a mostrar en displays BCD
     decenas_disp_conf: DS 1
+    unidades_disp_conf: DS 1 ; variables a mostrar en displays BCD
+    cont_delay: DS 2 ;variable de conteo delay
+
 
 PSECT udata_shr ;variables en memoria compartida
     W_TEMP: DS 1 ;1 byte
@@ -2599,6 +2601,12 @@ int_iocb:
     btfss PORTB, MODE ;verificar pin activado como pull-up
     incf modo_semaforo, F
 
+    movlw 0x05; reniciar modo cuando llega a modo 5
+    xorwf modo_semaforo,W
+    btfsc STATUS,2
+    clrf modo_semaforo
+
+
     ;btfss PORTB, UP ;verificar pin activado como pull-up
     ;incf PORTA
     ;btfss PORTB, DOWN ;verificar pin activado como pull-up
@@ -2612,24 +2620,30 @@ int_timer0:
     reiniciar_timer0
     clrf PORTD
 
-    movf banderas, W
+    movf banderas,W
     btfsc STATUS,2 ;Verificar bandera de zero
     goto display_decenas
 
-    movlw 1
+    movlw 0xFD
     xorwf banderas, W
     btfsc STATUS,2 ;Verificar bandera de zero
     goto display_unidades
 
-    movlw 2
+    movlw 0xFE
     xorwf banderas, W
+    btfss bandera_display_conf,0
+    goto $+3
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_decenas_conf
+
+    movlw 0xFF
+    xorwf banderas, W
+    btfss bandera_display_conf,0
+    goto $+3
     btfsc STATUS,2 ;Verificar bandera de zero
     goto display_unidades_conf
 
-    movlw 3
-    xorwf banderas, W
-    btfsc STATUS,2 ;Verificar bandera de zero
-    goto display_decenas_conf
+
 
 
 display_decenas:; mostrar display decenas
@@ -2658,12 +2672,10 @@ display_unidades_conf:;mostrar display unidades
 
 next_display:; subrutina para ir iterando entre cada uno de los display
 
-    btfsc bandera_display_conf,0
-    movlw 0x03
-    btfss bandera_display_conf,0
-    movlw 0x01
+    movlw 0xFC
 
-    andwf banderas,F
+    iorwf banderas, F
+
     incf banderas,F
     return
 
@@ -2828,14 +2840,18 @@ loop:
 
 
    call binario_decimal
+   call binario_decimal_conf
 
    ;llamar a binario decimal para los display de configuraciones
-   btfsc bandera_display_conf,0
-   call binario_decimal_conf
+   ;btfsc bandera_display_conf,0
+
 
     ;----Código que realiza el trabajo de que modo esta activo----
 
    ;modo de funcionamiento via 1 es el funcionamiento normal
+   movf modo_semaforo, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call modo_conf_via0
 
    movlw 0x01 ; modo de funcionamiento 2 (confi via 1)
    xorwf modo_semaforo, W
@@ -2863,6 +2879,16 @@ loop:
 ;--------------------------------Subrutinas-------------------------------------
 
 ;---sección de modos
+
+modo_conf_via0:
+
+    clrf PORTE
+    bcf bandera_display_conf,0
+    ;call prender_config_displays
+    ;bandera de modo semaforo para incremento
+
+    return
+
 modo_conf_via1:
     bsf PORTE,0
     bcf PORTE,1
@@ -2872,14 +2898,12 @@ modo_conf_via1:
     ;call prender_config_displays
     ;bandera de modo semaforo para incremento
 
-
     return
 
 modo_conf_via2:
     bcf PORTE,0
     bsf PORTE,1
     bcf PORTE,2
-    bsf bandera_display_conf,0
 
     return
 
@@ -2887,15 +2911,29 @@ modo_conf_via3:
     bcf PORTE,0
     bcf PORTE,1
     bsf PORTE,2
-    bsf bandera_display_conf,0
 
     return
 
 modo_verificar_cambios:
+    bcf PORTE,0
+    bcf PORTE,1
+    bcf PORTE,2
+
+    call delay
     bsf PORTE,0
     bsf PORTE,1
     bsf PORTE,2
+    call delay
 
+    return
+
+
+;----delay 100ms
+delay:
+    movlw 271
+    movwf cont_delay
+    decfsz cont_delay
+    goto $-1
     return
 
 
@@ -2951,19 +2989,21 @@ binario_decimal_conf:
 
     clrf decenas_conf
     clrf unidades_conf
+    movf display_conf,W
+    movwf var_temp
 
     ;ver decenas
     movlw 10
-    subwf display_conf,F; se resta el al valor de porta 10D
+    subwf var_temp,F; se resta el al valor de porta 10D
     btfsc STATUS, 0 ;Revisión de la bandera de carry
     incf decenas_conf, F; si porta>10 incrementa decenas
     btfsc STATUS, 0 ;Revisión de la bandera de carry
     goto $-4; si porta>10 repite proceso
-    addwf display_conf,F;ya no es posible restar mas
+    addwf var_temp,F;ya no es posible restar mas
        ;suma nuevamente el valor de var_temp sumandole nuevamente 10D
 
     ;ver unidades
-    movf display_conf, W
+    movf var_temp, W
     movwf unidades_conf ; mueve a unidades el restante del procedimiento anterior
      ; var_temp en este punto es menor o igual a nueve y >0
 
@@ -3022,8 +3062,11 @@ configuracion_inicial_vias:
     movlw 3
     movwf detener_verde_titilante
 
-    movlw 10
+    movlw 12
     movwf display_conf
+
+    movlw 0x00
+    movwf banderas
 
     ;clrf banderas
     clrf verde_titilante
