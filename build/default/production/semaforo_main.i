@@ -2518,7 +2518,7 @@ endm
 
 ;---------------------------------Variables-------------------------------------
 
-Global banderas, display_var, unidades, decenas, var_temp, bandera_vias
+Global banderas, display_var, unidades, decenas, var_temp, bandera_vias, modo_semaforo
 PSECT udata_bank0 ;variables almacenadas en el banco 0
     ;var: DS 1 ;1 byte -> para bucle
     ;nibble: DS 2; variables para contador hexademimal
@@ -2542,6 +2542,13 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     verde_titilante: DS 1
     detener_verde_titilante: DS 1
     led_t: DS 1
+    modo_semaforo: DS 1
+    display_conf: DS 1
+    bandera_display_conf: DS 1
+    unidades_conf: DS 1; variables de contador BCD
+    decenas_conf: DS 1
+    unidades_disp_conf: DS 1 ; variables a mostrar en displays BCD
+    decenas_disp_conf: DS 1
 
 PSECT udata_shr ;variables en memoria compartida
     W_TEMP: DS 1 ;1 byte
@@ -2574,9 +2581,11 @@ ORG 0x0004
  call int_timer1 ; subrutina de interrupción de timer1
  btfsc ((PIR1) and 07Fh), 1 ; verifica si la bandera de interrupcion tmr2 esta levantada
  call int_timer2 ; subrutina de interrupción de timer2
+ btfsc ((INTCON) and 07Fh), 0 ;verificar si la bandera de interrupción PORTB esta levantada
+ call int_iocb
 
     pop:
- swapf STATUS_TEMP, W
+ swapf STATUS_TEMP, W ;reobtener los valores de STATUS y W
  movwf STATUS
  swapf W_TEMP,F
  swapf W_TEMP, W
@@ -2586,11 +2595,13 @@ ORG 0x0004
 
 int_iocb:
     banksel PORTA
+
     btfss PORTB, MODE ;verificar pin activado como pull-up
-    ;decf PORTA
-    btfss PORTB, UP ;verificar pin activado como pull-up
+    incf modo_semaforo, F
+
+    ;btfss PORTB, UP ;verificar pin activado como pull-up
     ;incf PORTA
-    btfss PORTB, DOWN ;verificar pin activado como pull-up
+    ;btfss PORTB, DOWN ;verificar pin activado como pull-up
     ;decf PORTA
 
     bcf ((INTCON) and 07Fh), 0 ; limpiar bandera
@@ -2600,8 +2611,26 @@ int_iocb:
 int_timer0:
     reiniciar_timer0
     clrf PORTD
-    btfsc banderas,0
-    goto display_unidades; multiplexado de displays con timer0
+
+    movf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_decenas
+
+    movlw 1
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_unidades
+
+    movlw 2
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_unidades_conf
+
+    movlw 3
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_decenas_conf
+
 
 display_decenas:; mostrar display decenas
     movf decenas_disp, W
@@ -2615,10 +2644,29 @@ display_unidades:;mostrar display unidades
     call preparar_display2_via
     goto next_display
 
+display_decenas_conf:; mostrar display decenas
+    movf decenas_disp_conf, W
+    movwf PORTC
+    bsf PORTD,6
+    goto next_display
+
+display_unidades_conf:;mostrar display unidades
+    movf unidades_disp_conf, W
+    movwf PORTC
+    bsf PORTD,7
+    goto next_display
+
 next_display:; subrutina para ir iterando entre cada uno de los display
-    movlw 1
-    xorwf banderas,F
+
+    btfsc bandera_display_conf,0
+    movlw 0x03
+    btfss bandera_display_conf,0
+    movlw 0x01
+
+    andwf banderas,F
+    incf banderas,F
     return
+
 
 
 preparar_display1_via:
@@ -2690,14 +2738,14 @@ int_timer1:
 int_timer2:
     reiniciar_timer2
 
-    btfsc verde_titilante,0
-    call titileo_verde
+    btfsc verde_titilante,0 ;realizar el el titileo de 0.5s
+    call titileo_verde ; solo si esta encendida la bandera
 
     return
 
 
 
-titileo_verde:
+titileo_verde: ;verificar de que via es el titileo
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -2760,6 +2808,8 @@ loop:
 
    banksel PORTA
 
+   ;----Código que realiza el trabajo de que via esta activa----
+
    ;mover valor de puerto A a la variable temporal de displays BCD
    movlw 0x01
    xorwf bandera_vias, W
@@ -2779,10 +2829,77 @@ loop:
 
    call binario_decimal
 
+   ;llamar a binario decimal para los display de configuraciones
+   btfsc bandera_display_conf,0
+   call binario_decimal_conf
+
+    ;----Código que realiza el trabajo de que modo esta activo----
+
+   ;modo de funcionamiento via 1 es el funcionamiento normal
+
+   movlw 0x01 ; modo de funcionamiento 2 (confi via 1)
+   xorwf modo_semaforo, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call modo_conf_via1
+
+   movlw 0x02 ; modo de funcionamiento 3 (conf via 2)
+   xorwf modo_semaforo, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call modo_conf_via2
+
+   movlw 0x03 ; modo de funcionamiento 4 (conf via 3)
+   xorwf modo_semaforo, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call modo_conf_via3
+
+   movlw 0x04 ; modo de funcionamiento 5 (aceptar/rechazar cambios)
+   xorwf modo_semaforo, W
+   btfsc STATUS,2 ;Verificar bandera de zero
+   call modo_verificar_cambios
+
+
    goto loop
 
 ;--------------------------------Subrutinas-------------------------------------
 
+;---sección de modos
+modo_conf_via1:
+    bsf PORTE,0
+    bcf PORTE,1
+    bcf PORTE,2
+
+    bsf bandera_display_conf,0
+    ;call prender_config_displays
+    ;bandera de modo semaforo para incremento
+
+
+    return
+
+modo_conf_via2:
+    bcf PORTE,0
+    bsf PORTE,1
+    bcf PORTE,2
+    bsf bandera_display_conf,0
+
+    return
+
+modo_conf_via3:
+    bcf PORTE,0
+    bcf PORTE,1
+    bsf PORTE,2
+    bsf bandera_display_conf,0
+
+    return
+
+modo_verificar_cambios:
+    bsf PORTE,0
+    bsf PORTE,1
+    bsf PORTE,2
+
+    return
+
+
+;---sección de mover tiempo de via actual a var_temp
 mover_tiempo_via1:
 
     movf tiempo_via1,W
@@ -2802,6 +2919,7 @@ mover_tiempo_via3:
     return
 
 
+;---Sección de convertir valores a formato decimal
 binario_decimal:
     ;limpiar variables BCD
 
@@ -2827,6 +2945,32 @@ binario_decimal:
 
     return
 
+
+binario_decimal_conf:
+    ;limpiar variables BCD conf
+
+    clrf decenas_conf
+    clrf unidades_conf
+
+    ;ver decenas
+    movlw 10
+    subwf display_conf,F; se resta el al valor de porta 10D
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    incf decenas_conf, F; si porta>10 incrementa decenas
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    goto $-4; si porta>10 repite proceso
+    addwf display_conf,F;ya no es posible restar mas
+       ;suma nuevamente el valor de var_temp sumandole nuevamente 10D
+
+    ;ver unidades
+    movf display_conf, W
+    movwf unidades_conf ; mueve a unidades el restante del procedimiento anterior
+     ; var_temp en este punto es menor o igual a nueve y >0
+
+    call preparar_displays_conf
+
+    return
+
 preparar_displays:
     clrf decenas_disp
     clrf unidades_disp ; variables para prender displays
@@ -2841,7 +2985,26 @@ preparar_displays:
 
     return
 
+
+preparar_displays_conf:
+    clrf decenas_disp_conf
+    clrf unidades_disp_conf ; variables para prender displays
+
+    movf decenas_conf, W ; obtener el valor para display de decenas
+    call tabla
+    movwf decenas_disp_conf
+
+    movf unidades_conf, W ; obtener el valor para display de unidades
+    call tabla
+    movwf unidades_disp_conf
+
+    return
+
+
+;---- Sección de configuraciones iniciales/actualizacion
 configuracion_inicial_vias:
+
+    clrf modo_semaforo
 
     movlw 10
     movwf tiempo_via1
@@ -2859,7 +3022,12 @@ configuracion_inicial_vias:
     movlw 3
     movwf detener_verde_titilante
 
+    movlw 10
+    movwf display_conf
+
+    ;clrf banderas
     clrf verde_titilante
+    clrf bandera_display_conf
 
 
     bsf PORTA,2; poner semaforo via 1 en verde
@@ -3117,7 +3285,7 @@ config_iocrb:
     banksel TRISA
     bsf IOCB, MODE
     bsf IOCB, UP
-    bsf IOCB, DOWN ; setear IOC en los pines 0 y 7 del puerto B
+    bsf IOCB, DOWN ; setear IOC en los pines 5,6,7 del puerto B
 
     banksel PORTA
     movf PORTB, W ; al leer termina condición del mismatch
