@@ -102,6 +102,23 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     decenas_disp_conf: DS 1
     unidades_disp_conf: DS 1 ; variables a mostrar en displays BCD
     cont_delay: DS 2 ;variable de conteo delay
+    aceptar: DS 1
+    ;variables multiplexados pte 2
+    var_temp1: DS 1
+    var_temp2: DS 1
+   ; tiempo_espera_via1: DS 1
+   ; tiempo_espera_via2: DS 1
+   ; tiempo_espera_via3: DS 1
+    
+    unidades1: DS 1; variables de contador BCD
+    decenas1: DS 1
+    unidades_disp1: DS 1 ; variables a mostrar en displays BCD
+    decenas_disp1: DS 1
+    
+    unidades2: DS 1; variables de contador BCD
+    decenas2: DS 1
+    unidades_disp2: DS 1 ; variables a mostrar en displays BCD
+    decenas_disp2: DS 1
     
     
 PSECT udata_shr ;variables en memoria compartida
@@ -157,6 +174,8 @@ int_iocb:
     xorwf modo_semaforo,W
     btfsc STATUS,2
     clrf modo_semaforo
+    btfsc STATUS,2
+    clrf aceptar
 
     
     btfss PORTB, UP ;verificar pin activado como pull-up
@@ -181,21 +200,44 @@ actualizar_modo:
     
 actualizar_vias_inc:
     
+    movlw 0x14; reniciar modo cuando llega a modo 1 para incrementar
+    xorwf tiempo_vias_temporal,W
+    btfsc STATUS,2
+    goto $+8
+
+    
     movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
     xorwf modo_semaforo,W
     btfss STATUS,2
     incf tiempo_vias_temporal,F
+    btfsc STATUS,2
+    bsf aceptar,0
     
     return
+    
+    movlw 0x0A
+    movwf tiempo_vias_temporal,F
+    return
+    
 
 actualizar_vias_dec:
+    
+    movlw 0x0A; reniciar modo cuando llega a modo 1 para incrementar
+    xorwf tiempo_vias_temporal,W
+    btfsc STATUS,2
+    goto $+8
     
     movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
     xorwf modo_semaforo,W
     btfss STATUS,2
     decf tiempo_vias_temporal,F
+    btfsc STATUS,2
+    bsf aceptar,1
     
+    return
     
+    movlw 0x14
+    movwf tiempo_vias_temporal,F
     return
     
     
@@ -207,10 +249,30 @@ int_timer0:
     btfsc STATUS,2 ;Verificar bandera de zero
     goto display_decenas
     
-    movlw 0xFD
+    movlw 0xF9
     xorwf banderas, W
     btfsc STATUS,2 ;Verificar bandera de zero
     goto display_unidades
+    
+    movlw 0xFA
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_decenas1
+    
+    movlw 0xFB
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_unidades1
+    
+    movlw 0xFC
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_decenas2
+    
+    movlw 0xFD
+    xorwf banderas, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    goto display_unidades2
     
     movlw 0xFE
     xorwf banderas, W
@@ -226,8 +288,6 @@ int_timer0:
     btfsc STATUS,2 ;Verificar bandera de zero
     goto display_unidades_conf
     
-   
-    
     
 display_decenas:; mostrar display decenas
     movf decenas_disp, W
@@ -239,6 +299,30 @@ display_unidades:;mostrar display unidades
     movf unidades_disp, W
     movwf PORTC
     call preparar_display2_via
+    goto next_display
+    
+display_decenas1:; mostrar display decenas
+    movf decenas_disp1, W
+    movwf PORTC
+    call preparar_display1_via_1
+    goto next_display
+    
+display_unidades1:;mostrar display unidades
+    movf unidades_disp1, W
+    movwf PORTC
+    call preparar_display2_via_1
+    goto next_display
+    
+display_decenas2:; mostrar display decenas
+    movf decenas_disp2, W
+    movwf PORTC
+    call preparar_display1_via_2
+    goto next_display
+    
+display_unidades2:;mostrar display unidades
+    movf unidades_disp2, W
+    movwf PORTC
+    call preparar_display2_via_2
     goto next_display
 
 display_decenas_conf:; mostrar display decenas
@@ -255,7 +339,7 @@ display_unidades_conf:;mostrar display unidades
     
 next_display:; subrutina para ir iterando entre cada uno de los display
     
-    movlw 0xFC
+    movlw 0xF8
     
     iorwf banderas, F
     
@@ -295,6 +379,71 @@ preparar_display2_via:
     bsf PORTD, 5
     
     return
+    
+preparar_display1_via_1:
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 2
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 4
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 0
+    
+    return
+    
+preparar_display2_via_1:
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 3
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 5
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 1
+    
+    return
+
+preparar_display1_via_2:;por modificar
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 4
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 0
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 2
+    
+    return
+    ;ahora faltaría ver que displays se encienden 
+preparar_display2_via_2:; por modificar
+    movlw 1
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 5
+    movlw 2
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 1
+    movlw 3
+    xorwf bandera_vias, W
+    btfsc STATUS,2 ;Verificar bandera de zero
+    bsf PORTD, 3
+    
+    return   
+ 
     
     
 int_timer1:
@@ -358,7 +507,7 @@ titileo_verde: ;verificar de que via es el titileo
 ;-----------------------------Código principal----------------------------------
 	
 PSECT code, delta=2, abs
-ORG 100h   
+ORG 120h   
     
    
 tabla: ; tabla de valor de pines encendido para mostrar x valor en el display
@@ -423,6 +572,8 @@ loop:
    
     
    call binario_decimal
+   call binario_decimal1
+   call binario_decimal2
    call binario_decimal_conf
    
    ;llamar a binario decimal para los display de configuraciones
@@ -482,6 +633,9 @@ modo_conf_via1:
     movwf display_conf
     ;call prender_config_displays
     ;bandera de modo semaforo para incremento
+      
+    movwf tiempo_via1_usr
+    
     
     return
    
@@ -493,6 +647,8 @@ modo_conf_via2:
     movf tiempo_vias_temporal,W
     movwf display_conf
     
+    movwf tiempo_via2_usr
+    
     return
    
 modo_conf_via3:
@@ -502,6 +658,8 @@ modo_conf_via3:
     
     movf tiempo_vias_temporal,W
     movwf display_conf
+    
+    movwf tiempo_via3_usr
     
     return
    
@@ -516,8 +674,54 @@ modo_verificar_cambios:
     bsf PORTE,2
     ;call delay*
     ;bandera aceptar o denegar
+    bcf bandera_display_conf,0
+    btfsc aceptar,0
+    call actualizar_programa
+    
+    btfsc aceptar,1
+    clrf modo_semaforo
+    btfsc aceptar,1
+    clrf aceptar
+    
+    
     return
     
+actualizar_programa:
+    
+    movf tiempo_via1_usr,W
+    movwf tiempo_via1
+    movf tiempo_via2_usr,W
+    movwf tiempo_via2
+    movf tiempo_via3_usr,W
+    movwf tiempo_via3
+    
+    movlw 1
+    movwf bandera_vias
+    movwf led_t
+    
+    movlw 3
+    movwf detener_verde_titilante
+    
+    movlw 10
+    movwf display_conf
+    movwf tiempo_vias_temporal
+    
+    movlw 0x00
+    movwf banderas
+    
+    ;clrf banderas
+    clrf verde_titilante
+    clrf bandera_display_conf
+    clrf aceptar
+    
+    clrf PORTA
+    bcf PORTB,0
+    bsf PORTA,2; poner semaforo via 1 en verde
+    bsf	PORTA,3; poner semaforo via 2 en rojo
+    bsf PORTA,6; poner semaforo via 3 en rojo
+   
+    
+    return
     
 ;----delay 100ms    
 delay:
@@ -533,18 +737,40 @@ mover_tiempo_via1:
     
     movf tiempo_via1,W 
     movwf var_temp
+    
+    movf tiempo_via1,W 
+    movwf var_temp1 ;  tiempo de espera 2 en rojo
+    movf tiempo_via1,W 
+    addwf tiempo_via2, W
+    movwf var_temp2
+    
     return
   
 mover_tiempo_via2:
     
     movf tiempo_via2,W 
     movwf var_temp
+    
+    
+    movf tiempo_via2,W 
+    movwf var_temp1 ;tiempo de espera 3 en rojo
+    movf tiempo_via2,W
+    addwf tiempo_via3, W
+    movwf var_temp2
+    
     return
 
 mover_tiempo_via3:
     
     movf tiempo_via3,W 
     movwf var_temp
+    
+    movf tiempo_via3,W 
+    movwf var_temp1 ;tiempo de espera 1 en rojo
+    movf tiempo_via3,W
+    addwf tiempo_via1, W
+    movwf var_temp2
+    
     return  
    
     
@@ -574,6 +800,57 @@ binario_decimal:
     
     return
     
+    
+binario_decimal1:
+    ;limpiar variables BCD
+
+    clrf decenas1
+    clrf unidades1
+    
+    ;ver decenas
+    movlw 10
+    subwf var_temp1,F; se resta el al valor de porta 10D
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    incf decenas1, F; si porta>10 incrementa decenas
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    goto $-4; si porta>10 repite proceso 
+    addwf var_temp1,F;ya no es posible restar mas
+	      ;suma nuevamente el valor de var_temp sumandole nuevamente 10D
+	      
+    ;ver unidades
+    movf var_temp1, W
+    movwf unidades1 ; mueve a unidades el restante del procedimiento anterior
+		   ; var_temp en este punto es menor o igual a nueve y >0
+    
+    call preparar_displays1
+    
+    return
+    
+    
+binario_decimal2:
+    ;limpiar variables BCD
+
+    clrf decenas2
+    clrf unidades2
+    
+    ;ver decenas
+    movlw 10
+    subwf var_temp2,F; se resta el al valor de porta 10D
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    incf decenas2, F; si porta>10 incrementa decenas
+    btfsc STATUS, 0 ;Revisión de la bandera de carry
+    goto $-4; si porta>10 repite proceso 
+    addwf var_temp2,F;ya no es posible restar mas
+	      ;suma nuevamente el valor de var_temp sumandole nuevamente 10D
+	      
+    ;ver unidades
+    movf var_temp2, W
+    movwf unidades2 ; mueve a unidades el restante del procedimiento anterior
+		   ; var_temp en este punto es menor o igual a nueve y >0
+    
+    call preparar_displays2
+    
+    return
     
 binario_decimal_conf:
     ;limpiar variables BCD conf
@@ -613,6 +890,36 @@ preparar_displays:
     movf unidades, W ; obtener el valor para display de unidades
     call tabla
     movwf unidades_disp
+    
+    return
+    
+    
+preparar_displays1:
+    clrf decenas_disp1
+    clrf unidades_disp1 ; variables para prender displays
+    
+    movf decenas1, W ; obtener el valor para display de decenas
+    call tabla
+    movwf decenas_disp1
+    
+    movf unidades1, W ; obtener el valor para display de unidades
+    call tabla
+    movwf unidades_disp1
+    
+    return
+    
+    
+preparar_displays2:
+    clrf decenas_disp2
+    clrf unidades_disp2 ; variables para prender displays
+    
+    movf decenas2, W ; obtener el valor para display de decenas
+    call tabla
+    movwf decenas_disp2
+    
+    movf unidades2, W ; obtener el valor para display de unidades
+    call tabla
+    movwf unidades_disp2
     
     return
     
@@ -663,6 +970,7 @@ configuracion_inicial_vias:
     ;clrf banderas
     clrf verde_titilante
     clrf bandera_display_conf
+    clrf aceptar
     
     
     bsf PORTA,2; poner semaforo via 1 en verde
