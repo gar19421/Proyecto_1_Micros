@@ -2518,7 +2518,7 @@ endm
 
 ;---------------------------------Variables-------------------------------------
 
-Global decenas_disp_conf,unidades_conf, decenas_conf, banderas, display_var, unidades, decenas, var_temp, bandera_vias, modo_semaforo
+Global cont_delay, decenas_disp_conf,unidades_conf, decenas_conf, banderas, display_var, unidades, decenas, var_temp, bandera_vias, modo_semaforo
 PSECT udata_bank0 ;variables almacenadas en el banco 0
     ;var: DS 1 ;1 byte -> para bucle
     ;nibble: DS 2; variables para contador hexademimal
@@ -2550,7 +2550,7 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     decenas_conf: DS 1
     decenas_disp_conf: DS 1
     unidades_disp_conf: DS 1 ; variables a mostrar en displays BCD
-    cont_delay: DS 2 ;variable de conteo delay
+    cont_delay: DS 1 ;variable de conteo delay
     aceptar: DS 1
     ;variables multiplexados pte 2
     var_temp1: DS 1
@@ -2654,7 +2654,6 @@ actualizar_vias_inc:
     btfsc STATUS,2
     goto $+8
 
-
     movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
     xorwf modo_semaforo,W
     btfss STATUS,2
@@ -2694,97 +2693,98 @@ int_timer0:
     reiniciar_timer0
     clrf PORTD
 
-    movf banderas,W
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,0
     goto display_decenas
 
-    movlw 0xF9
-    xorwf banderas, W
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,1
     goto display_unidades
 
-    movlw 0xFA
-    xorwf banderas, W
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,2
     goto display_decenas1
 
-    movlw 0xFB
-    xorwf banderas, W
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,3
     goto display_unidades1
 
-    movlw 0xFC
-    xorwf banderas, W
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,4
     goto display_decenas2
 
-    movlw 0xFD
-    xorwf banderas, W
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,5
     goto display_unidades2
 
-    movlw 0xFE
-    xorwf banderas, W
     btfss bandera_display_conf,0
     goto $+3
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,6
     goto display_decenas_conf
 
-    movlw 0xFF
-    xorwf banderas, W
     btfss bandera_display_conf,0
     goto $+3
-    btfsc STATUS,2 ;Verificar bandera de zero
+    btfsc banderas,7
     goto display_unidades_conf
 
 
 display_decenas:; mostrar display decenas
+    clrf banderas
     movf decenas_disp, W
     movwf PORTC
     call preparar_display1_via
-    goto next_display
+    bsf banderas,1
+    return
 
 display_unidades:;mostrar display unidades
+    clrf banderas
     movf unidades_disp, W
     movwf PORTC
     call preparar_display2_via
-    goto next_display
+    bsf banderas,2
+    return
 
 display_decenas1:; mostrar display decenas
+    clrf banderas
     movf decenas_disp1, W
     movwf PORTC
     call preparar_display1_via_1
-    goto next_display
+    bsf banderas,3
+    return
 
 display_unidades1:;mostrar display unidades
+    clrf banderas
     movf unidades_disp1, W
     movwf PORTC
     call preparar_display2_via_1
-    goto next_display
+    bsf banderas,4
+    return
 
 display_decenas2:; mostrar display decenas
+    clrf banderas
     movf decenas_disp2, W
     movwf PORTC
     call preparar_display1_via_2
-    goto next_display
+    bsf banderas,5
+    return
 
 display_unidades2:;mostrar display unidades
+    clrf banderas
     movf unidades_disp2, W
     movwf PORTC
     call preparar_display2_via_2
-    goto next_display
+    bsf banderas,6
+    return
 
 display_decenas_conf:; mostrar display decenas
+    clrf banderas
     movf decenas_disp_conf, W
     movwf PORTC
     bsf PORTD,6
-    goto next_display
+    bsf banderas,7
+    return
 
 display_unidades_conf:;mostrar display unidades
+    clrf banderas
     movf unidades_disp_conf, W
     movwf PORTC
     bsf PORTD,7
-    goto next_display
+    bsf banderas,0
+    return
 
 next_display:; subrutina para ir iterando entre cada uno de los display
 
@@ -2900,6 +2900,12 @@ int_timer1:
 
     banksel PORTA
 
+
+    btfsc aceptar,0
+    decf cont_delay,F
+    btfsc aceptar,0
+    return
+
     ;verde titilante
     btfsc verde_titilante,0
     decf detener_verde_titilante, F
@@ -2935,7 +2941,6 @@ int_timer2:
     call titileo_verde ; solo si esta encendida la bandera
 
     return
-
 
 
 titileo_verde: ;verificar de que via es el titileo
@@ -3116,18 +3121,19 @@ modo_verificar_cambios:
     ;bcf PORTE,0
     ;bcf PORTE,1
     ;bcf PORTE,2
+    banksel PORTA
 
-    ;call delay*
     bsf PORTE,0
     bsf PORTE,1
     bsf PORTE,2
-    ;call delay*
+    ;call delay
+
     ;bandera aceptar o denegar
-    bcf bandera_display_conf,0
+    bcf bandera_display_conf,0;apago los displays modo
     btfsc aceptar,0
     call actualizar_programa
 
-    btfsc aceptar,1
+    btfsc aceptar,1 ; si lo que hace es rechazar cambios
     clrf modo_semaforo
     btfsc aceptar,1
     clrf aceptar
@@ -3136,6 +3142,7 @@ modo_verificar_cambios:
     return
 
 actualizar_programa:
+
 
     movf tiempo_via1_usr,W
     movwf tiempo_via1
@@ -3158,9 +3165,35 @@ actualizar_programa:
     movlw 0x00
     movwf banderas
 
+
     ;clrf banderas
     clrf verde_titilante
     clrf bandera_display_conf
+    clrf modo_semaforo
+
+
+    clrf PORTA
+    bcf PORTB,0
+    bsf PORTA,0; poner semaforo via 1 en rojo
+    bsf PORTA,3; poner semaforo via 2 en rojo
+    bsf PORTA,6; poner semaforo via 3 en rojo
+
+
+    movlw 00111111B
+    movwf unidades_disp
+    movwf unidades_disp1
+    movwf unidades_disp2
+    movwf decenas_disp
+    movwf decenas_disp1
+    movwf decenas_disp2
+
+    movf cont_delay,W; se queda aqui por un ciclo y medio del timer1
+    btfss STATUS,2
+    goto $-2
+
+
+    movlw 0x02 ; se cumplio el tiempo y resetea estos dos valores del delay
+    movwf cont_delay
     clrf aceptar
 
     clrf PORTA
@@ -3172,13 +3205,6 @@ actualizar_programa:
 
     return
 
-;----delay 100ms
-delay:
-    movlw 271
-    movwf cont_delay
-    decfsz cont_delay
-    goto $-1
-    return
 
 
 ;---sección de mover tiempo de via actual a var_temp
@@ -3415,6 +3441,9 @@ configuracion_inicial_vias:
 
     movlw 0x00
     movwf banderas
+
+    movlw 0x02
+    movwf cont_delay
 
     ;clrf banderas
     clrf verde_titilante
