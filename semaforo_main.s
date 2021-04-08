@@ -37,7 +37,7 @@ processor 16F887
 ;--------------------------------Constantes-------------------------------------
 MODE EQU 5
 UP EQU 6
-DOWN EQU 7;
+DOWN EQU 7; ; declarar puertos RB de entrada
   
 ;----------------------------------Macros---------------------------------------
  
@@ -60,9 +60,10 @@ endm
   
 
 reiniciar_timer2 macro	; reiniciar de Timer2
+    ; PR2 = 244
     Banksel PORTA   ; banco 0
     movlw   0xF4   ; cargar al registro W el valor inicial del tmr2
-    movwf   PR2    ; cargar timer 2
+    movwf   PR2    ; cargar PR2 2
     bcf	    TMR2IF    ;limpiar bandera de interrupción	timer2	
 endm
     
@@ -71,10 +72,7 @@ endm
     
 Global cont_delay, decenas_disp_conf,unidades_conf, decenas_conf, banderas, display_var, unidades, decenas, var_temp, bandera_vias, modo_semaforo
 PSECT udata_bank0 ;variables almacenadas en el banco 0
-    ;var: DS 1 ;1 byte -> para bucle
-    ;nibble: DS 2; variables para contador hexademimal
-    ;centenas: DS 1
-    ;centenas_disp: DS 1
+    
     banderas: DS 1 ;1 byte -> para contador de display timer0
     display_var: DS 2	
     unidades: DS 1; variables de contador BCD
@@ -84,32 +82,38 @@ PSECT udata_bank0 ;variables almacenadas en el banco 0
     var_temp: DS 1 ;variable temporal para valor de portb
     tiempo_via1: DS 1
     tiempo_via2: DS 1
-    tiempo_via3: DS 1
-    tiempo_via1_usr: DS 1
+    tiempo_via3: DS 1;variables tiempos de via
+    
+    tiempo_via1_usr: DS 1 ;variables tiempos de vía para actualizar
     tiempo_via2_usr: DS 1
     tiempo_via3_usr: DS 1
-    tiempo_vias_temporal: DS 1
-    bandera_vias: DS 1
+    
+    tiempo_vias_temporal: DS 1 ;->variable temporal ingresada por el usuario
+    
+    bandera_vias: DS 1 ; -> banderas de que vía tiene que mostrarse
     bandera_vias_temp: DS 1
-    verde_titilante: DS 1
-    detener_verde_titilante: DS 1
-    led_t: DS 1
-    modo_semaforo: DS 1
+    
+    verde_titilante: DS 1 ; -> bandera de verde titilante
+    detener_verde_titilante: DS 1 ;-> 3 seg que tarda el verde titilante
+    
+    led_t: DS 1; -> encendido de verde titilante 
+    
+    modo_semaforo: DS 1 ; variables de manejo al entrar en modos de config.
     display_conf: DS 1
     bandera_display_conf: DS 1
-    unidades_conf: DS 1; variables de contador BCD
+    unidades_conf: DS 1; 
     decenas_conf: DS 1
     decenas_disp_conf: DS 1
     unidades_disp_conf: DS 1 ; variables a mostrar en displays BCD
-    cont_delay: DS 1 ;variable de conteo delay
-    aceptar: DS 1
-    ;variables multiplexados pte 2
-    var_temp1: DS 1
-    var_temp2: DS 1
-   ; tiempo_espera_via1: DS 1
-   ; tiempo_espera_via2: DS 1
-   ; tiempo_espera_via3: DS 1
     
+    cont_delay: DS 1 ;variable de conteo delay cuando al actualizar cambios
+    aceptar: DS 1 ; variable para aceptar/rechazar cambios 01->A  10->R
+
+    var_temp1: DS 1
+    var_temp2: DS 1 ;variables temporales para multiplexado
+	
+ 
+    ;variables para multiplexar en cero las vías que no se usan
     unidades1: DS 1; variables de contador BCD
     decenas1: DS 1
     unidades_disp1: DS 1 ; variables a mostrar en displays BCD
@@ -161,29 +165,29 @@ ORG 0x0004
 	swapf W_TEMP,F
 	swapf W_TEMP, W
 	
-	retfie
+	retfie ;salir de interrupcion
 	
 	
 int_iocb:
     banksel PORTA
     
     btfss PORTB, MODE ;verificar pin activado como pull-up
-    call actualizar_modo
+    call actualizar_modo ; si presiona mode cambia entre modos de 1 a 5
     
-    movlw 0x05; reniciar modo cuando llega a modo 5
+    movlw 0x05; reniciar modo cuando llega a modo 5 -> overflow
     xorwf modo_semaforo,W
     btfsc STATUS,2
-    clrf modo_semaforo
+    clrf modo_semaforo ; si llega a modo 5 reinicio las banderas para modo normal
     btfsc STATUS,2
     clrf aceptar
 
     
     btfss PORTB, UP ;verificar pin activado como pull-up
-    call actualizar_vias_inc
+    call actualizar_vias_inc ;para incrementar vias / aceptar
     
     
     btfss PORTB, DOWN ;verificar pin activado como pull-up
-    call actualizar_vias_dec
+    call actualizar_vias_dec ; para decrementar vías / rechazar
     
     bcf RBIF ; limpiar bandera
     
@@ -191,43 +195,43 @@ int_iocb:
     
     
 actualizar_modo:
-    incf modo_semaforo, F
+    incf modo_semaforo, F ; incremento el siguiente modo y reseteo las var de conf. via
     movlw 10
     movwf display_conf
     movwf tiempo_vias_temporal
     
     return
     
-actualizar_vias_inc:
+actualizar_vias_inc: 
     
-    movlw 0x14; reniciar modo cuando llega a modo 1 para incrementar
+    movlw 0x14; reniciar cuando llega a 20 -> 10
     xorwf tiempo_vias_temporal,W
     btfsc STATUS,2
     goto $+8
 
-    movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
+    movlw 0x04 ;excepcción cuando esté en modo 5 no haga ningún incremento
     xorwf modo_semaforo,W
     btfss STATUS,2
-    incf tiempo_vias_temporal,F
+    incf tiempo_vias_temporal,F ; si esta en modo conf. tiempo via incrementa
     btfsc STATUS,2
-    bsf aceptar,0
+    bsf aceptar,0 ;si esta en modo 5, el boton esta en modo aceptar/rechazar y acepta
     
     return
     
-    movlw 0x0A
+    movlw 0x0A ; mueve el valor de 10 en el overflow de 20
     movwf tiempo_vias_temporal,F
     return
     
 
 actualizar_vias_dec:
     
-    movlw 0x0A; reniciar modo cuando llega a modo 1 para incrementar
+    movlw 0x0A;  reniciar cuando llega a 10 -> 20
     xorwf tiempo_vias_temporal,W
     btfsc STATUS,2
     goto $+8
     
-    movlw 0x04; reniciar modo cuando llega a modo 1 para incrementar
-    xorwf modo_semaforo,W
+    movlw 0x04; si esta en modo 5 el boton es para rechazar sino decrementa los tiempos
+    xorwf modo_semaforo,W ; en modo conf. tiempo
     btfss STATUS,2
     decf tiempo_vias_temporal,F
     btfsc STATUS,2
@@ -235,16 +239,16 @@ actualizar_vias_dec:
     
     return
     
-    movlw 0x14
+    movlw 0x14 ; pasa a 20 en el underflow
     movwf tiempo_vias_temporal,F
     return
     
     
 int_timer0: 
     reiniciar_timer0
-    clrf PORTD 
+    clrf PORTD  ;multiplexado de los displays, limpio puerto D
         
-    btfsc banderas,0
+    btfsc banderas,0 ;verifico el display a encender
     goto display_decenas
     
     btfsc banderas,1
@@ -262,7 +266,7 @@ int_timer0:
     btfsc banderas,5
     goto display_unidades2
     
-    btfss bandera_display_conf,0
+    btfss bandera_display_conf,0 ; verifico primero si esta en modo conf.
     goto $+3
     btfsc banderas,6
     goto display_decenas_conf
@@ -274,11 +278,11 @@ int_timer0:
     
     
 display_decenas:; mostrar display decenas
-    clrf banderas
+    clrf banderas ; limpio banderas en cada display
     movf decenas_disp, W
-    movwf PORTC
-    call preparar_display1_via
-    bsf banderas,1
+    movwf PORTC ;muestro valor en display
+    call preparar_display1_via; verifico que display se enciende
+    bsf banderas,1 ;voy cambiando al siguiente display
     return
     
 display_unidades:;mostrar display unidades
@@ -336,7 +340,8 @@ display_unidades_conf:;mostrar display unidades
     bsf PORTD,7
     bsf banderas,0
     return
-    
+
+/*
 next_display:; subrutina para ir iterando entre cada uno de los display
     
     movlw 0xF8
@@ -345,10 +350,10 @@ next_display:; subrutina para ir iterando entre cada uno de los display
     
     incf banderas,F
     return
+    */
     
     
-    
-preparar_display1_via:
+preparar_display1_via: ; verifico que display1 encender de acuerdo a cual lleva la vía
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -364,7 +369,7 @@ preparar_display1_via:
     
     return
     
-preparar_display2_via:
+preparar_display2_via: ; verifico que display2 encender de acuerdo a cual lleva la vía
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -380,7 +385,7 @@ preparar_display2_via:
     
     return
     
-preparar_display1_via_1:
+preparar_display1_via_1: ;verifico cual display poner en su valor de espera que no lleve vía
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -396,7 +401,7 @@ preparar_display1_via_1:
     
     return
     
-preparar_display2_via_1:
+preparar_display2_via_1:  ;verifico cual display poner en su valor de espera que no lleve vía
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -412,7 +417,7 @@ preparar_display2_via_1:
     
     return
 
-preparar_display1_via_2:;por modificar
+preparar_display1_via_2:; verifico cual display poner en su valor de espera que no lleve vía
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -427,8 +432,8 @@ preparar_display1_via_2:;por modificar
     bsf PORTD, 2
     
     return
-    ;ahora faltaría ver que displays se encienden 
-preparar_display2_via_2:; por modificar
+  
+preparar_display2_via_2:;verifico cual display poner en su valor de espera que no lleve vía
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -453,7 +458,7 @@ int_timer1:
     
     
     btfsc aceptar,0
-    decf cont_delay,F
+    decf cont_delay,F ; delay cuando se da aceptar cambio -> secuencia de cambio
     btfsc aceptar,0
     return
     
@@ -466,6 +471,7 @@ int_timer1:
     movf bandera_vias, W
     movwf bandera_vias_temp
     
+   ; verifico que variable de vía decrememtar en cada segundo
     movlw 1
     xorwf bandera_vias, W
     btfsc STATUS,2 ;Verificar bandera de zero
@@ -487,7 +493,7 @@ int_timer1:
 
 int_timer2:
     reiniciar_timer2
-    
+    ;temporizacion de parpadeo en verde titilante
     btfsc verde_titilante,0 ;realizar el el titileo de 0.5s 
     call titileo_verde	    ; solo si esta encendida la bandera
     
@@ -512,7 +518,7 @@ titileo_verde: ;verificar de que via es el titileo
 ;-----------------------------Código principal----------------------------------
 	
 PSECT code, delta=2, abs
-ORG 120h   
+ORG 120h    ; guardar codigo en la posición 0x120
     
    
 tabla: ; tabla de valor de pines encendido para mostrar x valor en el display
@@ -544,7 +550,7 @@ setup:
     
     call config_reloj ;
     call config_io ;
-    call configuracion_inicial_vias
+    call configuracion_inicial_vias ; configuracion inicial de valores por default vías
     call config_int_enable ;
     call config_timer0 ;
     call config_timer1  ; 
@@ -575,7 +581,7 @@ loop:
    btfsc STATUS,2 ;Verificar bandera de zero
    call  mover_tiempo_via3
    
-    
+   ;llamar a los conversores hex -> decimal para cada par de displays
    call binario_decimal
    call binario_decimal1
    call binario_decimal2
@@ -621,7 +627,7 @@ loop:
 
 modo_conf_via0:
     
-    clrf PORTE
+    clrf PORTE ;mantener apagados displays y led de conf.
     bcf bandera_display_conf,0
     ;call prender_config_displays
     ;bandera de modo semaforo para incremento 
@@ -682,7 +688,7 @@ modo_verificar_cambios:
     ;bandera aceptar o denegar
     bcf bandera_display_conf,0;apago los displays modo
     btfsc aceptar,0
-    call actualizar_programa
+    call actualizar_programa ; si acepta actualizo programa
     
     btfsc aceptar,1 ; si lo que hace es rechazar cambios
     clrf modo_semaforo
@@ -700,8 +706,9 @@ actualizar_programa:
     movf tiempo_via2_usr,W
     movwf tiempo_via2
     movf tiempo_via3_usr,W
-    movwf tiempo_via3
+    movwf tiempo_via3 ; mover tiempos metidos por usuario a tiempos del programa
     
+    ;reseteo las banderas y valores a iniciales y para la secuencia de reseteo
     movlw 1
     movwf bandera_vias
     movwf led_t
@@ -736,11 +743,11 @@ actualizar_programa:
     movwf unidades_disp2
     movwf decenas_disp
     movwf decenas_disp1
-    movwf decenas_disp2
+    movwf decenas_disp2 ;pongo por un instante displays en cero
     
     movf cont_delay,W; se queda aqui por un ciclo y medio del timer1
     btfss STATUS,2
-    goto  $-2
+    goto  $-2 
     
     
     movlw 0x02 ; se cumplio el tiempo y resetea estos dos valores del delay
@@ -759,7 +766,7 @@ actualizar_programa:
     
    
 ;---sección de mover tiempo de via actual a var_temp
-mover_tiempo_via1:
+mover_tiempo_via1: 
     
     movf tiempo_via1,W 
     movwf var_temp
@@ -919,7 +926,7 @@ preparar_displays:
     
     return
     
-    
+;-----preparar los displays moviendo valores convertidos tablay y luego a display-----------
 preparar_displays1:
     clrf decenas_disp1
     clrf unidades_disp1 ; variables para prender displays
@@ -1008,7 +1015,7 @@ configuracion_inicial_vias:
     
     return
     
-    
+;--- subrutinas de decremento en cada segundo de los tiempos de vías--------
 
 decrementar_via1:
     
@@ -1071,6 +1078,9 @@ decrementar_via3:
     
     return
     
+    
+; ----- cada vez que termina el tiempo en semaforo actualizo la via que se pondra en 
+    ;verde
 actualizar_bandera_via1:
     
     movlw 0x02
@@ -1272,7 +1282,7 @@ config_timer0:
     bcf PSA ; prescaler
     bsf PS2 
     bsf PS1 
-    bsf PS0 ; PS = 110 (1:256)
+    bsf PS0 ; PS = 110 (1:128)
     banksel PORTA
     
     reiniciar_timer0
