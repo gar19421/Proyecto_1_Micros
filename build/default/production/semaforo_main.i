@@ -3462,10 +3462,6 @@ decrementar_via1:
     xorwf tiempo_via1, W
     btfsc STATUS,2 ;Verificar bandera de zero
     bsf verde_titilante,0
-    movlw 0x03
-    btfsc STATUS,2 ;Verificar bandera de zero
-    movwf tiempo_via1, W
-
 
     ;btfsc verde_titilante,0
     ;call via1_verde_titilante
@@ -3488,10 +3484,6 @@ decrementar_via2:
     xorwf tiempo_via2, W
     btfsc STATUS,2 ;Verificar bandera de zero
     bsf verde_titilante,0
-    movlw 0x03
-    btfsc STATUS,2 ;Verificar bandera de zero
-    movwf tiempo_via2, W
-
 
     movlw 0x03
     xorwf tiempo_via2, W
@@ -3511,9 +3503,6 @@ decrementar_via3:
     xorwf tiempo_via3, W
     btfsc STATUS,2 ;Verificar bandera de zero
     bsf verde_titilante,0
-    movlw 0x03
-    btfsc STATUS,2 ;Verificar bandera de zero
-    movwf tiempo_via3, W
 
     movlw 0x03
     xorwf tiempo_via3, W
@@ -3596,7 +3585,6 @@ via1_verde_titilante:
     clrf verde_titilante
     movlw 3
     movwf detener_verde_titilante
-    movwf tiempo_via1
 
     return
 
@@ -3621,7 +3609,6 @@ via2_verde_titilante:
     clrf verde_titilante
     movlw 3
     movwf detener_verde_titilante
-    movwf tiempo_via2
 
     return
 
@@ -3645,7 +3632,6 @@ via3_verde_titilante:
     clrf verde_titilante
     movlw 3
     movwf detener_verde_titilante
-    movwf tiempo_via3
 
     return
 

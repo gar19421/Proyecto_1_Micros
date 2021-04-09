@@ -271,7 +271,7 @@ int_timer0:
     btfsc banderas,6
     goto display_decenas_conf
     
-    btfss bandera_display_conf,0
+    btfss bandera_display_conf,0 ;verifica primero si esta en modo conf.
     goto $+3
     btfsc banderas,7
     goto display_unidades_conf
@@ -341,16 +341,6 @@ display_unidades_conf:;mostrar display unidades
     bsf banderas,0
     return
 
-/*
-next_display:; subrutina para ir iterando entre cada uno de los display
-    
-    movlw 0xF8
-    
-    iorwf banderas, F
-    
-    incf banderas,F
-    return
-    */
     
     
 preparar_display1_via: ; verifico que display1 encender de acuerdo a cual lleva la vía
